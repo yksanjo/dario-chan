@@ -58,7 +58,7 @@ DARIO_PROVIDER=ollama python3 dario.py
 ### Option 3: Ambient Mode (Never-Stopping Companion)
 
 ```bash
-python3 ambient.py
+python3 dariochan.py
 ```
 
 This mode runs continuously. It reads `~/dario-diary.md` every 10 minutes, drops wisdom every 5 minutes, and levels up every 12 hours. Press `q` to quit. State persists between sessions.
@@ -150,7 +150,7 @@ State persists in `~/.dario-chan-state.json`. Close it, reopen it days later —
 ```
 dario-chan/
 ├── agent.py          # ReAct agent loop (134 lines)
-├── ambient.py        # Never-stopping companion mode
+├── dariochan.py      # Never-stopping companion mode
 ├── buddy.py          # ASCII pet generation & stats
 ├── companion.py      # Speech bubble renderer
 ├── config.py         # Settings, provider routing
@@ -195,7 +195,7 @@ dario-chan/
 | `/expressions` | Show all 12 expression faces |
 | `/stats` | Show buddy level, hours, diary words |
 
-### Ambient Mode (`ambient.py`)
+### Ambient Mode (`dariochan.py`)
 
 | Input | What happens |
 |-------|-------------|

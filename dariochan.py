@@ -309,6 +309,8 @@ class AmbientDario:
         curses.init_pair(4, curses.COLOR_RED, -1)
         curses.init_pair(5, curses.COLOR_MAGENTA, -1)
         curses.init_pair(6, curses.COLOR_WHITE, -1)
+        curses.init_pair(7, curses.COLOR_BLUE, -1)  # Blueprint grid
+        curses.init_pair(8, curses.COLOR_YELLOW, -1)  # Stars
 
         self.state.current_message = self._get_wisdom()
         self.state.message_time = time.time()
@@ -347,12 +349,49 @@ class AmbientDario:
             time.sleep(ANIMATION_SPEED)
 
     def _draw_background(self, stdscr, height, width):
-        """Draw subtle background pattern."""
-        try:
-            for y in range(height - 1):
-                stdscr.addstr(y, 0, " " * (width - 1))
-        except curses.error:
-            pass
+        """Draw blueprint grid + twinkling stars background."""
+        import time as _time
+        t = int(_time.time())
+
+        for y in range(1, height - 3):
+            try:
+                line = ""
+                for x in range(1, width - 1):
+                    # Grid every 4 characters (blueprint lines)
+                    if x % 4 == 0 and y % 3 == 0:
+                        line += "┼"
+                    elif x % 4 == 0:
+                        line += "│"
+                    elif y % 3 == 0:
+                        line += "─"
+                    # Stars (twinkle based on position and time)
+                    elif (x * 7 + y * 13 + t * 3) % 97 == 0:
+                        line += random.choice(["✦", "✧", "✧"])
+                    # Very faint secondary grid dots
+                    elif (x + y + t) % 49 == 0:
+                        line += "·"
+                    else:
+                        line += " "
+                
+                # Draw grid in blue (dim), stars in yellow
+                for x, char in enumerate(line):
+                    if char in "┼│─":
+                        try:
+                            stdscr.addch(y, x, char, curses.color_pair(7) | curses.A_DIM)
+                        except curses.error:
+                            pass
+                    elif char in "✦✧":
+                        try:
+                            stdscr.addch(y, x, char, curses.color_pair(8) | curses.A_BOLD)
+                        except curses.error:
+                            pass
+                    elif char == "·":
+                        try:
+                            stdscr.addch(y, x, char, curses.color_pair(6) | curses.A_DIM)
+                        except curses.error:
+                            pass
+            except curses.error:
+                pass
 
     def _draw_dario(self, stdscr, height, width):
         """Draw Dario-chan with current expression."""

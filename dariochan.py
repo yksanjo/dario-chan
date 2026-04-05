@@ -293,7 +293,10 @@ class AmbientDario:
     def start(self):
         self.running = True
         self.state.session_start = time.time()
-        curses.wrapper(self._main_loop)
+        try:
+            curses.wrapper(self._main_loop)
+        finally:
+            self.stop()
 
     def stop(self):
         self.running = False

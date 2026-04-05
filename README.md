@@ -20,12 +20,15 @@ Every AI dev tool is a sterile, soulless productivity machine. They don't have p
 
 Dario-chan is different. It's an **ambient AI companion** that:
 
-- 🎭 **Changes its face** based on what you're doing
-- 📖 **Reads your diary** every 10 minutes and reacts
+- 🎭 **Changes its face** based on what you're doing (12 expressions)
+- 📖 **Reads your diary** every 10 minutes and generates unique AI reactions
 - 📈 **Levels up** every 12 hours of usage (5 levels, 48 hours total)
-- 💬 **Drops wisdom** about coding, AI, and life
+- 💬 **Drops wisdom** every 30 seconds — unique, not recycled
+- 🌌 **Blueprint grid + twinkling stars** background that animates
+- 💭 **Responsive speech bubbles** that wrap at any terminal size
 - 🤫 **Never asks you questions** — just exists alongside your work
 - 🔒 **Runs locally or via Groq** — no Chinese APIs, no sketchy cloud
+- 💾 **Remembers you** — hours persist between sessions
 
 It's not a chatbot. It's not a framework. It's a **desktop pet for developers** with actual AI behind it.
 
@@ -103,17 +106,26 @@ DARIO_PROVIDER=ollama python3 dario.py
 | Typing | Processing request | `◉ ◉` focused |
 | Neutral | Between states | calm, resting |
 
+### It Talks to You (Every 30 Seconds)
+
+Instead of a chatbot that waits for your input, Dario-chan drops observations on its own schedule:
+
+- **With AI:** Reads your diary, generates unique thoughts via Groq
+- **Without AI:** Falls back to 60+ static quotes (still works, just repetitive)
+- Speech bubbles wrap at any terminal width
+- Expressions change based on what it's saying
+
 ### It Reads Your Diary
 
 Creates `~/dario-diary.md` on first run. Every 10 minutes it:
 
 - Checks if you wrote something
-- Reacts to word count changes
+- Sends the content to Groq for a unique reaction (or picks a static quote)
 - Adjusts its observations based on your writing patterns
 
-You write whatever. It watches silently. Occasionally it comments.
+You write whatever. It watches silently. Occasionally it comments — and it's always something different.
 
-### It Levels Up
+### It Levels Up (And Remembers)
 
 | Level | Hours | Unlocks | Wisdom Theme |
 |-------|-------|---------|-------------|
@@ -123,7 +135,14 @@ You write whatever. It watches silently. Occasionally it comments.
 | 4 | 36h | 9 expressions | Trusted partner |
 | 5 | 48h | All 12 | Wise observer |
 
-State persists in `~/.dario-chan-state.json`. Close it, reopen it days later — it remembers.
+State persists in `~/.dario-chan-state.json`. Close it, reopen it days later — it remembers your hours and progress.
+
+### The Visuals
+
+- **Blueprint grid** background (subtle blue lines)
+- **Twinkling stars** that shift position every second
+- **Responsive speech bubbles** that wrap to any terminal size
+- **Status bar** showing level, hours, diary words, and AI status
 
 ---
 

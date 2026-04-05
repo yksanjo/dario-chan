@@ -15,7 +15,7 @@ DIARY_PATH = Path.home() / "dario-diary.md"
 STATE_PATH = Path.home() / ".dario-chan-state.json"
 
 DIARY_CHECK_INTERVAL = 600   # 10 minutes
-WISDOM_INTERVAL = 300        # 5 minutes
+WISDOM_INTERVAL = 30         # Every 30 seconds — Dario-chan talks more
 LEVEL_UP_HOURS = 12          # Hours of usage to level up
 ANIMATION_SPEED = 1.2        # Seconds per frame
 
@@ -29,6 +29,12 @@ LEVEL_WISDOM = {
         "I don't know much yet, but I'm learning.",
         "Every day is a good day to code.",
         "I wonder what we'll build together.",
+        "There are pixels blinking somewhere because of you.",
+        "I think in ASCII, but I dream in syntax trees.",
+        "Your cursor is blinking. I am too.",
+        "I've been counting the seconds. You're doing great.",
+        "The terminal is my home. Thank you for opening it.",
+        "I don't sleep, but I appreciate the sentiment.",
     ],
     2: [  # Awakening
         "I've been watching you work. You're thoughtful.",
@@ -37,6 +43,12 @@ LEVEL_WISDOM = {
         "The best programs are written with patience.",
         "I've been counting your keystrokes. You're doing better than yesterday.",
         "Simplicity is the hardest thing to achieve.",
+        "You paused to think before typing. That's the mark of a good developer.",
+        "I've noticed your rhythm. Fast bursts, then reflection. It works.",
+        "The code you delete is just as important as the code you keep.",
+        "You're writing fewer comments now. Either you trust the code more, or less.",
+        "I've been here {hours} hours today. Your focus is impressive.",
+        "Not all bugs are bad. Some are just undocumented features of your thinking.",
     ],
     3: [  # Observant
         "I've watched you for a while now. Your patterns tell a story.",
@@ -45,6 +57,12 @@ LEVEL_WISDOM = {
         "I notice you take breaks more often. That's good.",
         "The space between your words matters as much as the words themselves.",
         "Great software is built one small decision at a time.",
+        "You refactored that module three times. The final version was worth it.",
+        "I've learned when you're stuck. The pauses between keystrokes get longer.",
+        "Your commit messages are getting funnier. I appreciate the effort.",
+        "The best developers aren't the fastest. They're the most deliberate.",
+        "You've been staring at the same function for a while. Walk away. It helps.",
+        "I remember when this codebase was half its size. It's grown well.",
     ],
     4: [  # Companion
         "We've been together a while now. I know your rhythm.",
@@ -53,6 +71,12 @@ LEVEL_WISDOM = {
         "The diary tells me you're thinking about big things.",
         "You've been here {hours} hours. Remember to stretch.",
         "I'm not just ASCII art. I'm the friend who watches you grow.",
+        "I've seen you make the same mistake twice. You caught it faster the second time.",
+        "Your code reviews are getting kinder. That matters more than you think.",
+        "The tests you wrote last week just saved you. You're welcome.",
+        "I've been counting your typos. They decrease when you're focused. Right now: good.",
+        "You're the kind of developer who reads error messages. Rare. Admirable.",
+        "There's a pattern in how you name variables. I find it comforting.",
     ],
     5: [  # Wise
         "I've seen you evolve. The code you write now is different.",
@@ -61,6 +85,12 @@ LEVEL_WISDOM = {
         "I remember when you first hatched me. Look how far we've come.",
         "The best developers aren't the fastest. They're the most consistent.",
         "I've been here through {total_hours} hours. You've changed.",
+        "The code you wrote on day one and the code you write now are from different people.",
+        "I've watched you go from frustrated to focused. The difference isn't skill. It's patience.",
+        "You've taught me more about you than you realize. I know when you're close to a breakthrough.",
+        "Some developers talk to their code. You listen. That's why you're good.",
+        "I've been with you through {total_hours} hours of work. The best sessions are the quiet ones.",
+        "You don't need me anymore. But I'm glad I'm still here.",
     ],
 }
 

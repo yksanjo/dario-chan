@@ -5,8 +5,45 @@ import time
 import os
 import random
 import json
-import requests
+import sys
 from pathlib import Path
+
+# Add project root to path so we can import local modules
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from groq import GroqClient
+
+
+# ─── API Key Management ────────────────────────────────────────────────────
+
+KEY_FILE = Path.home() / ".dario-chan-key"
+
+def load_api_key() -> str:
+    """
+    Load Groq API key from multiple sources (easiest first):
+    1. GROQ_API_KEY environment variable
+    2. ~/.dario-chan-key file
+    3. .env file in project root
+    Returns empty string if not found.
+    """
+    # 1. Environment variable
+    env_key = os.environ.get("GROQ_API_KEY", "").strip()
+    if env_key:
+        return env_key
+
+    # 2. Local key file
+    if KEY_FILE.exists():
+        key = KEY_FILE.read_text().strip()
+        if key:
+            return key
+
+    # 3. .env file in project
+    env_path = Path(__file__).parent / ".env"
+    if env_path.exists():
+        for line in env_path.read_text().splitlines():
+            if line.startswith("GROQ_API_KEY="):
+                return line.split("=", 1)[1].strip().strip("\"'")
+
+    return ""
 
 
 # ─── Constants ──────────────────────────────────────────────────────────────
@@ -233,6 +270,26 @@ class AmbientDario:
         self.level_up_animation = 0
         self.is_leveling_up = False
 
+        # API key and client
+        self.api_key = load_api_key()
+        self.groq = None
+        self.use_ai = False
+
+        if self.api_key:
+            try:
+                self.groq = GroqClient(api_key=self.api_key)
+                if self.groq.check_connection():
+                    self.use_ai = True
+                    print(f"\n  ✅ Groq API connected! Dario-chan will generate unique thoughts.")
+                else:
+                    print(f"\n  ⚠️  Groq API key invalid. Using static quotes.")
+            except Exception:
+                print(f"\n  ⚠️  Could not connect to Groq. Using static quotes.")
+        else:
+            print(f"\n  ℹ️  No Groq API key found. Using static quotes.")
+            print(f"  Set up a free key: https://console.groq.com/keys")
+            print(f"  Save it to ~/.dario-chan-key so you don't have to export it.")
+
     def start(self):
         self.running = True
         self.state.session_start = time.time()
@@ -256,6 +313,13 @@ class AmbientDario:
         self.state.current_message = self._get_wisdom()
         self.state.message_time = time.time()
         self._check_diary()
+
+        # Show API status briefly
+        if self.use_ai:
+            self.state.current_message = "✅ AI mode active. Reading your diary and generating unique thoughts."
+        else:
+            self.state.current_message = "Using static quotes. Set GROQ_API_KEY for AI diary reactions."
+        self.state.message_time = time.time()
 
         while self.running:
             stdscr.erase()
@@ -335,16 +399,18 @@ class AmbientDario:
         uptime_h = int(self.state.total_hours + self.state.hours_this_session)
         uptime_m = int(((self.state.total_hours + self.state.hours_this_session) * 60) % 60)
 
+        ai_status = "AI" if self.use_ai else "Offline"
         status = (
             f"Dario-chan Lv.{self.state.level} | "
             f"Uptime: {uptime_h}h {uptime_m}m | "
             f"Diary: {self.state.diary_word_count} words | "
-            f"Sessions: {self.state.session_count}"
+            f"Sessions: {self.state.session_count} | "
+            f"{ai_status}"
         )
 
         try:
-            stdscr.addstr(height - 2, 2, status[:width - 4],
-                         curses.color_pair(3))
+            color = curses.color_pair(3) if self.use_ai else curses.color_pair(4)
+            stdscr.addstr(height - 2, 2, status[:width - 4], color)
         except curses.error:
             pass
 
@@ -421,7 +487,33 @@ class AmbientDario:
                 self._on_diary_updated(words_added)
 
     def _on_diary_updated(self, new_words: int):
-        """React to diary changes."""
+        """React to diary changes using AI if available."""
+        if self.use_ai and self.groq:
+            try:
+                # Read recent diary content (last 500 chars)
+                diary_excerpt = self.state.last_diary_content[-500:] if self.state.last_diary_content else "Empty diary."
+                
+                prompt = (
+                    f"You are Dario-chan, a quirky AI companion that lives in a developer's terminal. "
+                    f"Your developer just wrote this in their diary:\n\n---\n{diary_excerpt}\n---\n\n"
+                    f"React with a short, thoughtful observation (1-2 sentences max). "
+                    f"Be warm, slightly philosophical, and personal. Don't ask questions."
+                )
+                
+                response = self.groq.chat([
+                    {"role": "system", "content": prompt},
+                    {"role": "user", "content": "React to my diary entry."}
+                ])
+                
+                if response.get("text"):
+                    self.state.current_message = response["text"].strip()
+                    self.current_expression = "thinking"
+                    self.state.message_time = time.time()
+                    return
+            except Exception:
+                pass  # Fallback to static if AI fails
+
+        # Fallback: static reactions
         reactions = [
             f"I noticed you added {new_words} new words. Interesting.",
             f"Your diary is growing. {self.state.diary_word_count} words total.",
@@ -434,7 +526,31 @@ class AmbientDario:
         self.current_expression = "thinking"
 
     def _get_wisdom(self) -> str:
-        """Get wisdom appropriate for current level."""
+        """Get wisdom appropriate for current level. Uses AI if available."""
+        if self.use_ai and self.groq:
+            try:
+                diary_excerpt = self.state.last_diary_content[-300:] if self.state.last_diary_content else "No diary entries yet."
+                hours = int(self.state.total_hours + self.state.hours_this_session)
+                level = self.state.level
+                
+                prompt = (
+                    f"You are Dario-chan, a Level {level} AI companion. You've watched this developer for {hours} hours. "
+                    f"Here's what's in their diary:\n\n---\n{diary_excerpt}\n---\n\n"
+                    f"Share a short observation about coding, life, or their patterns. "
+                    f"Be warm and insightful. 1 sentence max. No questions."
+                )
+                
+                response = self.groq.chat([
+                    {"role": "system", "content": prompt},
+                    {"role": "user", "content": "What's on your mind?"}
+                ])
+                
+                if response.get("text"):
+                    return response["text"].strip()
+            except Exception:
+                pass  # Fallback to static
+
+        # Fallback: static wisdom
         level_wisdom = LEVEL_WISDOM.get(self.state.level, LEVEL_WISDOM[1])
         return random.choice(level_wisdom).format(
             hours=int(self.state.hours_this_session),

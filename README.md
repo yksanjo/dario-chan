@@ -33,19 +33,46 @@ It's not a chatbot. It's not a framework. It's a **desktop pet for developers** 
 
 ## Quick Start
 
-### Option 1: Groq (Free, Fast, 5 seconds)
+### Step 1: Set Your API Key (One-Time)
+
+Choose **one** of these methods (easiest first):
 
 ```bash
-# Get a free API key (no credit card)
-# → https://console.groq.com/keys
+# Method 1: Save to a hidden file (easiest, never type it again)
+echo "gsk_your_key_here" > ~/.dario-chan-key
 
+# Method 2: Use environment variable
 export GROQ_API_KEY=gsk_your_key_here
-pip install requests  # That's the only dependency
 
+# Method 3: Create .env file in project
+cp .env.example .env
+# Edit .env and add your key
+```
+
+Get a free key → https://console.groq.com/keys
+
+### Step 2: Run
+
+### Option 1: Interactive Mode (`dario.py`)
+
+```bash
 python3 dario.py
 ```
 
-### Option 2: Local (Ollama, Zero API)
+Chat with Dario-chan. Uses Groq API or local Ollama.
+
+### Option 2: Ambient Mode (`dariochan.py`)
+
+```bash
+python3 dariochan.py
+```
+
+Runs continuously. Reads `~/dario-diary.md` every 10 minutes, drops **unique AI-generated thoughts** every 30 seconds, and levels up every 12 hours. Press `q` to quit. State persists between sessions.
+
+**With AI:** Reads your diary and generates unique reactions via Groq.
+**Without AI:** Falls back to static quotes (still works, just repetitive).
+
+### Option 3: Local (Ollama, Zero API)
 
 ```bash
 brew install ollama
@@ -54,14 +81,6 @@ ollama pull qwen2.5:0.5b
 
 DARIO_PROVIDER=ollama python3 dario.py
 ```
-
-### Option 3: Ambient Mode (Never-Stopping Companion)
-
-```bash
-python3 dariochan.py
-```
-
-This mode runs continuously. It reads `~/dario-diary.md` every 10 minutes, drops wisdom every 5 minutes, and levels up every 12 hours. Press `q` to quit. State persists between sessions.
 
 ---
 

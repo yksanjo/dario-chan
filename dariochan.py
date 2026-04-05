@@ -423,15 +423,81 @@ class AmbientDario:
                 pass
 
     def _draw_message(self, stdscr, height, width):
-        """Draw wisdom/observation message."""
+        """Draw wisdom/observation message in a responsive bubble."""
         msg_age = time.time() - self.state.message_time
         if msg_age < 20:  # Show for 20 seconds
             msg = self._type_effect(self.state.current_message, int(msg_age * 8))
+            self._draw_bubble(stdscr, height, width, msg)
+
+    def _draw_bubble(self, stdscr, height, width, text: str):
+        """Draw text in a responsive speech bubble."""
+        # Calculate bubble dimensions based on screen width
+        max_bubble_width = min(width - 6, 60)  # Max 60 chars or screen - margins
+        min_bubble_width = 20
+
+        # Wrap text
+        lines = self._wrap_text(text, max_bubble_width - 4)
+        if not lines:
+            return
+
+        bubble_width = max(min(len(max(lines, key=len)) + 4, max_bubble_width), min_bubble_width)
+        bubble_height = len(lines) + 2
+
+        # Position: bottom area, above status bar
+        start_y = max(1, height - bubble_height - 4)
+        start_x = max(1, (width - bubble_width) // 2)
+
+        # Draw top border
+        try:
+            stdscr.addstr(start_y, start_x, "╭" + "─" * (bubble_width - 2) + "╮",
+                         curses.color_pair(2) | curses.A_BOLD)
+        except curses.error:
+            pass
+
+        # Draw text lines
+        for i, line in enumerate(lines):
+            if start_y + 1 + i >= height - 3:
+                break
+            padded = line.ljust(bubble_width - 2)
             try:
-                stdscr.addstr(height - 6, 2, msg[:width - 4],
+                stdscr.addstr(start_y + 1 + i, start_x, "│",
+                             curses.color_pair(2) | curses.A_BOLD)
+                stdscr.addstr(start_y + 1 + i, start_x + 1, padded,
+                             curses.color_pair(2))
+                stdscr.addstr(start_y + 1 + i, start_x + bubble_width - 1, "│",
                              curses.color_pair(2) | curses.A_BOLD)
             except curses.error:
                 pass
+
+        # Draw bottom border
+        bottom_y = start_y + bubble_height - 1
+        if bottom_y < height - 2:
+            try:
+                stdscr.addstr(bottom_y, start_x, "╰" + "─" * (bubble_width - 2) + "╯",
+                             curses.color_pair(2) | curses.A_BOLD)
+            except curses.error:
+                pass
+
+    def _wrap_text(self, text: str, max_width: int) -> list[str]:
+        """Wrap text to fit within max_width."""
+        if not text:
+            return []
+        
+        words = text.split()
+        lines = []
+        current = ""
+        
+        for word in words:
+            if len(current) + len(word) + 1 <= max_width:
+                current = f"{current} {word}".strip()
+            else:
+                if current:
+                    lines.append(current)
+                current = word
+        if current:
+            lines.append(current)
+        
+        return lines
 
     def _draw_status_bar(self, stdscr, height, width):
         """Draw status information."""
